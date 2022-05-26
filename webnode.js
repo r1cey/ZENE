@@ -1,5 +1,7 @@
 var http = require( 'http' );
 
+var fs = require( 'fs' );
+
 http.createServer
 (
     function( req, res )
@@ -26,6 +28,23 @@ http.createServer
 
 
 function test( req, res )
-{dir
+{
     require()
+}
+
+
+function opengame( gameid )
+{
+    fs.readFile( `./${gameid}/box.json`, function( err, data )
+    {
+        if( err )
+        {
+            console.log( err );
+
+            return;
+        }
+        let box =JSON.parse( data ); 
+        
+        console.log( box );
+    })
 }
