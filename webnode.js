@@ -1,14 +1,24 @@
-var http = require( 'http' );
+const process   =require( 'node:process') ;
+const http      =require( 'node:http' );
+const fs        =require( 'node:fs/promises' );
 
-var fs = require( 'fs' );
+const classdir  ='./classes/' ;
+const Html      =require( classdir+'Html.js' );
+const Game      =require( classdir+'Game.js' );
+
+(async function(){
+
+global.html =await Html.build() ; 
+
+global.games ={} ;
+
+let port =process.argv[2] || 80 ;
 
 http.createServer
 (
     function( req, res )
     {
-        var url =req.url.slice( 1 );
-
-        var params =[ url ];
+        var params =req.url.split('/').slice(1) ;        
 
         switch( params[0] )
         {
@@ -18,13 +28,15 @@ http.createServer
             break;
             default:
 
-                opengame( params[0] );
+                opengame( params[0], res );
         }
         res.writeHead( 200, {'Content-Type': 'text/html'} );
         
         res.end( 'Hello World!' );
     }
-).listen( 80 );
+).listen( port );
+
+})();
 
 
 function test( req, res )
@@ -33,18 +45,31 @@ function test( req, res )
 }
 
 
-function opengame( gameid )
+async function opengame( gameid, res )
 {
-    fs.readFile( `./${gameid}/box.json`, function( err, data )
-    {
-        if( err )
-        {
-            console.log( err );
+    var html ;
 
-            return;
+    var game =games[gameid] ;
+
+    if( !game ) //make new game
+    {
+        try{
+            var boxjson =await fs.readFile( `./${gameid}/box.json` );
         }
-        let box =JSON.parse( data ); 
-        
-        console.log( box );
-    })
+        catch(err){
+            console.log( err );
+            return ;
+        }
+        let box =JSON.parse( boxjson ); 
+    
+        game =games[gameid] =new Game(box);
+    }
+    for(let tableid in game.tables )
+    {
+
+    }
+    var mawait fs.readFile( 'tables.xml', 'utf8' );
+    res.writeHead( 200, {'Content-Type': 'text/html'} );
+
+    res.end()
 }
